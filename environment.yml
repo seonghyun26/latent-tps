@@ -1,4 +1,4 @@
-name: latent-tps-cpu
+name: latent-tps
 channels:
   - nvidia
   - pytorch

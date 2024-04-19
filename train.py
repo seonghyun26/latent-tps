@@ -51,10 +51,11 @@ def main(args):
 
     if args.wandb:
         wandb.init(
-            entity='coarse-graining-mit',
-            settings=wandb.Settings(start_method="fork"),
+            # entity='coarse-graining-mit',
+            entity="postech-ml-tsp",
+            # settings=wandb.Settings(start_method="fork"),
+            # name=args.run_name,
             project=args.project,
-            name=args.run_name,
             config=args
         )
         wandb.log({'numel': numel})
@@ -156,5 +157,17 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
 
 if __name__ == '__main__':
+    # Logger config
+    date = datetime.datetime.now(tz=kst).strftime("%m%d-%H%M")
+    log_dir = f"results/{date}"
+    log_file_name = log_dir + '/train.log'
+    
+    file_handler = logging.FileHandler(log_file_name, mode="w")
+    file_handler.setLevel(logging.INFO)
+    file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+    
+    # Train 
     args = parse_train_args()
     main(args)
