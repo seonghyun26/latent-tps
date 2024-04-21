@@ -97,12 +97,12 @@ def run_flow(args, flow, data, prior_x, target_x, dataset, logs, ignore_torsiona
     log_w = bg_target_logPE - (bg_logjac_forward + prior_logPE) # log_w = log_p(x) - log_qq(x) = log_p(x) - (log_U(prior_x) + log_jac)
     logs['log_w'].extend(log_w.detach().cpu().numpy().tolist())
 
-    return reverse_kl, forward_kl, bg_target_x
+    return reverse_kl, forward_kl, bg_target_x, bg_prior_x
 
 def iteration(args, flow,data, prior_x, target_x, dataset, logs, iter):
 
     start = time.time()
-    reverse_kl, forward_kl, bg_target_x = run_flow(args, flow, data, prior_x, target_x, dataset, logs)
+    reverse_kl, forward_kl, bg_target_x, bg_prior_x = run_flow(args, flow, data, prior_x, target_x, dataset, logs)
     logs['run_flow_time'].append(time.time() - start)
 
     with torch.no_grad():
@@ -118,6 +118,6 @@ def iteration(args, flow,data, prior_x, target_x, dataset, logs, iter):
         loss = loss + args.kl_loss_weight * forward_kl
     if args.rkl_loss_weight > 0 and iter > args.rkl_start_iter:
         loss = loss + args.rkl_loss_weight * reverse_kl
-    return loss, bg_target_x
+    return loss, bg_target_x, bg_prior_x
 
 

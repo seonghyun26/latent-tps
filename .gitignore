@@ -337,3 +337,8 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,python,macos,windows,linux
 
+results/
+img/
+workdir/
+wandb/
+.vscode/

@@ -28,6 +28,12 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 logger = get_logger(__name__)
 
 
+import datetime
+import pytz
+import logging
+
+from utils.metrics import *
+
 def main(args):
     model_dir = os.environ['MODEL_DIR']
     yaml_file_name = os.path.join(model_dir, 'args.yaml')
@@ -52,7 +58,7 @@ def main(args):
     if args.wandb:
         wandb.init(
             # entity='coarse-graining-mit',
-            entity="postech-ml-tsp",
+            entity="eddy26",
             # settings=wandb.Settings(start_method="fork"),
             # name=args.run_name,
             project=args.project,
@@ -99,7 +105,14 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
             logs['num_atoms'].append(data.num_nodes / data.num_graphs)
             logs['num_torsions'].append(data.edge_mask.sum().item() / data.num_graphs)
             optimizer.zero_grad()
-            loss, bg_target_x = iteration(args, flow, data, prior_x, target_x, dataset, logs, i)
+            loss, bg_target_x, bg_prior_x = iteration(args, flow, data, prior_x, target_x, dataset, logs, i)
+            
+            # NOTE: Adding metrics to "logs" variable
+            logs["expected_pairwise_distance/target"] = expected_pairwise_distance(bg_target_x, target_x)
+            logs["expected_pairwise_distance/prior"] = expected_pairwise_distance(bg_prior_x, prior_x)
+            logs["target_hit_percentage/target"] = target_hit_percentage(bg_target_x, target_x)
+            logs["target_hit_percentage/prior"] = target_hit_percentage(bg_prior_x, prior_x)
+            # logs["energy_transition_point"] = energy_transition_point(prior_x, target.x, _)
 
             if torch.isinf(loss).any():
                 logger.warning('Loss contained inf')
@@ -158,8 +171,11 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
 if __name__ == '__main__':
     # Logger config
+    kst = pytz.timezone('Asia/Seoul')
     date = datetime.datetime.now(tz=kst).strftime("%m%d-%H%M")
     log_dir = f"results/{date}"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
     log_file_name = log_dir + '/train.log'
     
     file_handler = logging.FileHandler(log_file_name, mode="w")
