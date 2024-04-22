@@ -34,6 +34,7 @@ import logging
 
 from utils.metrics import *
 
+
 def main(args):
     model_dir = os.environ['MODEL_DIR']
     yaml_file_name = os.path.join(model_dir, 'args.yaml')
@@ -108,10 +109,10 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
             loss, bg_target_x, bg_prior_x = iteration(args, flow, data, prior_x, target_x, dataset, logs, i)
             
             # NOTE: Adding metrics to "logs" variable
-            logs["expected_pairwise_distance/target"] = expected_pairwise_distance(bg_target_x, target_x)
-            logs["expected_pairwise_distance/prior"] = expected_pairwise_distance(bg_prior_x, prior_x)
-            logs["target_hit_percentage/target"] = target_hit_percentage(bg_target_x, target_x)
-            logs["target_hit_percentage/prior"] = target_hit_percentage(bg_prior_x, prior_x)
+            # logs["expected_pairwise_distance/target"] = expected_pairwise_distance(bg_target_x, target_x)
+            # logs["expected_pairwise_distance/prior"] = expected_pairwise_distance(bg_prior_x, prior_x)
+            # logs["target_hit_percentage/target"] = target_hit_percentage(bg_target_x, target_x)
+            # logs["target_hit_percentage/prior"] = target_hit_percentage(bg_prior_x, prior_x)
             # logs["energy_transition_point"] = energy_transition_point(prior_x, target.x, _)
 
             if torch.isinf(loss).any():

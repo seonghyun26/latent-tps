@@ -135,11 +135,11 @@ class InternalFlow(nn.Module):
         self._flows = flows
         self.flow = nf.NormalizingFlow(q0=self.internal_prior, flows=flows, p=dataset.target.boltzmann_distribution)
 
-    def forward(self, data, prior_x, logs=None):
+    def forward(self, prior_x, logs=None):
         target_x, log_det = self.flow.forward_and_log_det(prior_x)
         return target_x, log_det
 
-    def reverse(self, data, target_x, logs=None):
+    def reverse(self, target_x, logs=None):
         target_x = target_x.view(self.args.batch_size, -1)
         x, log_det = self.flow.inverse_and_log_det(target_x)
         return x, log_det
@@ -153,10 +153,10 @@ class InternalFlow(nn.Module):
 
         # We transform it twice because the PeriodicWrap changes the values slightly (i.e., modulo ranges)
         # But when using it again, it should result in the same values
-        new_x, _ = self.forward(data, prior_x)
-        back_x1, _ = self.reverse(data, new_x)
-        new_x, _ = self.forward(data, back_x1)
-        back_x, _ = self.reverse(data, new_x)
+        new_x, _ = self.forward(prior_x)
+        back_x1, _ = self.reverse(new_x)
+        new_x, _ = self.forward(back_x1)
+        back_x, _ = self.reverse(new_x)
         assert torch.allclose(prior_x, test_copy)
         assert torch.allclose(back_x1, back_x, rtol=1e-04, atol=1e-02)
         for x, y in zip(new_x.view(prior_x.shape[0], -1, 3), new_x.view(prior_x.shape[0], -1, 3)):

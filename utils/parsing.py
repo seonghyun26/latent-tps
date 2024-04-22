@@ -44,7 +44,7 @@ def parse_train_args(args=sys.argv[1:]):
     parser.add_argument('--decay_dur', type=float, default=0)
     parser.add_argument('--lr_end', type=float, default=1)
     # parser.add_argument('--train_iters', type=int, default=1000000)
-    parser.add_argument('--train_iters', type=int, default=10000)
+    parser.add_argument('--train_iters', type=int, default=1000)
     parser.add_argument('--grad_clip', type=float, default=1.0)
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument("--energy_log_cutoff", type=float, default=1.e+8, help='')
