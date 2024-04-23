@@ -342,3 +342,5 @@ img/
 workdir/
 wandb/
 .vscode/
+data/flow_datasets/
+

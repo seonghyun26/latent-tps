@@ -26,7 +26,7 @@ from utils.training import save_yaml_file
 parser = ArgumentParser()
 # Wandb Arguments
 parser.add_argument('--wandb', action='store_true', default=False, help='')
-parser.add_argument('--project', type=str, default='transitionpath-inf', help='')
+parser.add_argument('--project', type=str, default='tsp', help='')
 
 # Model Arguments
 parser.add_argument('--model_dir', required=True, type=str,
@@ -110,8 +110,8 @@ if __name__ == '__main__':
 
     if args.wandb:
         wandb.init(
-            entity='coarse-graining-mit',
-            settings=wandb.Settings(start_method="fork"),
+            entity='eddy26',
+            # settings=wandb.Settings(start_method="fork"),
             project=args.project,
             name=run_name,
             config=args
@@ -119,11 +119,12 @@ if __name__ == '__main__':
 
     path_setup = PathSetup(ALDP_STATES[args.start_state_idx], ALDP_STATES[args.end_state_idx])
 
-    flow, model_args = load_flow_and_args(args.model_dir, args.ckpt,
-                                          parallel_energy=args.parallel_energy,
-                                          num_energy_processes=args.num_energy_processes,
-                                          md_device=args.md_device, torch_device=args.torch_device,
-                                          num_frames=100  # no need to load all frames :)
+    flow, model_args = load_flow_and_args(
+        args.model_dir, args.ckpt,
+        parallel_energy=args.parallel_energy,
+        num_energy_processes=args.num_energy_processes,
+        md_device=args.md_device, torch_device=args.torch_device,
+        num_frames=100  # no need to load all frames :)
     )
     if args.batch_size > 0:
         model_args.__dict__["batch_size"] = args.batch_size

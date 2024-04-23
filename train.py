@@ -36,7 +36,8 @@ from utils.metrics import *
 
 
 def main(args):
-    model_dir = os.environ['MODEL_DIR']
+    # model_dir = os.environ['MODEL_DIR']
+    model_dir = args.log_dir
     yaml_file_name = os.path.join(model_dir, 'args.yaml')
     save_yaml_file(yaml_file_name, args.__dict__)
     logger.info(f"Saving training args to {yaml_file_name}")
@@ -135,21 +136,24 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
             if i % args.ckpt_freq == 0:
                 state = {'model': flow.state_dict()}
-                path = f'{args.log_dir}/{args.run_name}/model_{i}.ckpt'
+                path = f'{args.log_dir}/model_{i}.ckpt'
                 torch.save(state, path)
                 logger.info(f'Saved checkpoint {path}')
 
             if i % args.print_freq == 0:
-                log = {key: np.nanmean(logs[key]) for key in logs}
-                log |= {'iter': i}
+                log = {'iter': i}
+                log |= {key: np.nanmean(logs[key]) for key in logs}
                 log |= {'sample_rmsd.std': np.std(logs['sample_rmsd'])}
                 log |= {'mean_weights': log_mean_exp(logs['log_w'])}
                 logger.info(str(log))
                 logger.info(f"reverse_kl {log['reverse_kl']}")
                 logger.info(f"forward_kl {log['forward_kl']}")
+                logger.info(f"reverse_epd {log['epd/inverse']}")
+                logger.info(f"forward_epd {log['epd/forward']}")
                 logger.info(
                     f'Run name: {args.run_name}')  # please keep this. I have many tmux windows and do not know what is running where sometimes :3
-                if args.wandb: wandb.log(log)
+                if args.wandb:
+                    wandb.log(log)
                 logs = defaultdict(list)
 
             last_successful_state = copy.deepcopy(flow.state_dict())
@@ -187,4 +191,5 @@ if __name__ == '__main__':
     
     # Train 
     args = parse_train_args()
+    args.log_dir = log_dir
     main(args)
