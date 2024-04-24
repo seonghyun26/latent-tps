@@ -1,6 +1,6 @@
 # MODEL_DIR="results/test"
-MODEL_DIR="results/0423-1616"
-CKPT_NAME="model_0.ckpt"
+MODEL_DIR="results/0423-1642"
+CKPT_NAME="model_900.ckpt"
 
 CUDA_VISIBLE_DEVICES=$1 python inference.py \
   --model_dir $MODEL_DIR \

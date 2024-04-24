@@ -87,6 +87,7 @@ class InternalFlow(nn.Module):
 
         if args.flow_architecture == 'rnvp':
             # RNVP is not circular, so we ensure that uniformly distributed variables are in the correct range
+            # TODO: modify bound_cir to bound_square
             flows.append(nf.flows.PeriodicWrap(ind_circ, bound_circ))
 
         for i in range(args.update_layers):

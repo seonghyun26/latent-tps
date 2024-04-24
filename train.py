@@ -88,7 +88,13 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
     consecutive_errors = 0
 
-    iterations = tqdm.trange(args.train_iters) if not args.wandb else range(args.train_iters)
+    iterations = tqdm.trange(
+        args.train_iters,
+        desc='Training flow'
+    ) if not args.wandb else tqdm.tqdm(
+        range(args.train_iters),
+        desc='Training flow'
+    )
     last_successful_state = None
     for i in iterations:
         try:
@@ -129,7 +135,8 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
             optimizer.step()
             scheduler.step()
             logs['backprop_time'].append(time.time() - start)
-            if i % args.val_freq == 0:
+            
+            if i != 0 and i % args.val_freq == 0:
                 flow.eval()
                 eval_flow(args, data, dataset, flow, i, logs)
                 flow.train()

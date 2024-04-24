@@ -12,8 +12,14 @@ from utils.metrics import *
 def eval_flow(args, data, dataset, flow, i, logs):
     phis = np.zeros(args.val_samples)
     psis = np.zeros(args.val_samples)
+    pbar = tqdm.tqdm(
+        range(0, args.val_samples, args.batch_size),
+        desc='Evaluating flow',
+        leave=False
+    )
+    
     with torch.no_grad():
-        for j in tqdm.trange(0, args.val_samples, args.batch_size):
+        for j in pbar:
             count = args.batch_size
             if j + args.batch_size >= args.val_samples:
                 count = args.val_samples - j
@@ -42,7 +48,8 @@ def eval_flow(args, data, dataset, flow, i, logs):
             if args.flow_type != 'internal_coords':
                 logger.error('eval does not work for properly non-internal coords flows. Only drawing one batch')
                 break
-
+    pbar.clear()
+    
     # Filter out the values where the forward pass failed
     phis = phis[~np.isnan(phis)]
     psis = psis[~np.isnan(psis)]

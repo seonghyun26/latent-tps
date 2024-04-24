@@ -341,6 +341,7 @@ results/
 img/
 workdir/
 wandb/
+openmmforcefields
 .vscode/
 data/flow_datasets/
 
