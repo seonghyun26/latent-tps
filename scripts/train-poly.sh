@@ -1,0 +1,23 @@
+CUDA_VISIBLE_DEVICES=$1 python train.py \
+  --system poly \
+  --data_path data/poly \
+  --forcefield amber/protein.ff14SBonlysc.xml \
+  --forcefield_water implicit/gbn2.xml \
+  --md_device OpenCL \
+  --flow_type internal_coords \
+  --num_frames 1000000 \
+  --hidden_dim 256 \
+  --update_layers 12 \
+  --batch_size 2048 \
+  --weight_decay 1.e-5 \
+  --lr 5.e-4 \
+  --lr_schedule cosine \
+  --warmup_dur 1000 \
+  --kl_loss_weight 1 \
+  --rkl_loss_weight 0 \
+  --grad_clip 1000 \
+  --torch_device cuda \
+  --project tps-latent \
+  --run_name test \
+  --wandb
+

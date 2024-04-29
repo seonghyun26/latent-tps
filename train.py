@@ -36,8 +36,14 @@ from utils.metrics import *
 
 
 def main(args):
-    # model_dir = os.environ['MODEL_DIR']
-    model_dir = args.log_dir
+    model_dir = os.environ['MODEL_DIR']
+    log_file_name = os.path.join(model_dir, 'train.log')
+    file_handler = logging.FileHandler(log_file_name, mode="w")
+    file_handler.setLevel(logging.INFO)
+    file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+    
     yaml_file_name = os.path.join(model_dir, 'args.yaml')
     save_yaml_file(yaml_file_name, args.__dict__)
     logger.info(f"Saving training args to {yaml_file_name}")
@@ -48,7 +54,7 @@ def main(args):
     flow = construct_model(args, dataset)
 
     if args.ckpt:
-        state_dict = torch.load(os.path.join(model_dir, args.ckpt), map_location=torch.device('cpu'))
+        state_dict = torch.load(os.path.join(model_dir+"/ckpt", args.ckpt), map_location=torch.device('cpu'))
         flow.load_state_dict(state_dict['model'], strict=True)
         logger.info(f'Loading checkpoint {args.ckpt}')
 
@@ -59,10 +65,8 @@ def main(args):
 
     if args.wandb:
         wandb.init(
-            # entity='coarse-graining-mit',
             entity="eddy26",
-            # settings=wandb.Settings(start_method="fork"),
-            # name=args.run_name,
+            name=args.run_name,
             project=args.project,
             config=args
         )
@@ -91,9 +95,6 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
     iterations = tqdm.trange(
         args.train_iters,
         desc='Training flow'
-    ) if not args.wandb else tqdm.tqdm(
-        range(args.train_iters),
-        desc='Training flow'
     )
     last_successful_state = None
     for i in iterations:
@@ -114,13 +115,6 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
             logs['num_torsions'].append(data.edge_mask.sum().item() / data.num_graphs)
             optimizer.zero_grad()
             loss, bg_target_x, bg_prior_x = iteration(args, flow, data, prior_x, target_x, dataset, logs, i)
-            
-            # NOTE: Adding metrics to "logs" variable
-            # logs["expected_pairwise_distance/target"] = expected_pairwise_distance(bg_target_x, target_x)
-            # logs["expected_pairwise_distance/prior"] = expected_pairwise_distance(bg_prior_x, prior_x)
-            # logs["target_hit_percentage/target"] = target_hit_percentage(bg_target_x, target_x)
-            # logs["target_hit_percentage/prior"] = target_hit_percentage(bg_prior_x, prior_x)
-            # logs["energy_transition_point"] = energy_transition_point(prior_x, target.x, _)
 
             if torch.isinf(loss).any():
                 logger.warning('Loss contained inf')
@@ -182,21 +176,8 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
 
 if __name__ == '__main__':
-    # Logger config
-    kst = pytz.timezone('Asia/Seoul')
-    date = datetime.datetime.now(tz=kst).strftime("%m%d-%H%M")
-    log_dir = f"results/{date}"
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    log_file_name = log_dir + '/train.log'
-    
-    file_handler = logging.FileHandler(log_file_name, mode="w")
-    file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+
     
     # Train 
     args = parse_train_args()
-    args.log_dir = log_dir
     main(args)

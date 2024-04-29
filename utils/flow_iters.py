@@ -91,18 +91,17 @@ def run_flow(args, flow, data, prior_x, target_x, dataset, logs, ignore_torsiona
             prior_logPE = flow.flow.q0.log_prob(prior_x)
     logs['energy_time'].append(time.time() - start)
     
-    # DEBUG:
     batch_size = args.batch_size
     atomspace_bg_target_x = bg_target_x.reshape(batch_size * molecule_number_of_atoms, 3)
     atomspace_bg_target_x = atomspace_bg_target_x.reshape(batch_size, -1, 3)
-    test_epd1 = expected_pairwise_distance(atomspace_bg_target_x, target_x.reshape(batch_size, -1, 3))
+    epd_forward = expected_pairwise_distance(atomspace_bg_target_x, target_x.reshape(batch_size, -1, 3))
     atomspace_prior_x, _ = flow.forward(prior_x)
     atomspace_bg_prior_x, _ = flow.forward(bg_prior_x)
     atomspace_prior_x = atomspace_prior_x.reshape(batch_size, -1, 3)
     atomspace_bg_prior_x = atomspace_bg_prior_x.reshape(batch_size, -1, 3)
-    test_epd2 = expected_pairwise_distance(atomspace_bg_prior_x, atomspace_prior_x)
-    logs['epd/forward'].append(test_epd1)
-    logs['epd/inverse'].append(test_epd2)
+    epd_backward = expected_pairwise_distance(atomspace_bg_prior_x, atomspace_prior_x)
+    logs['epd/forward'].append(epd_forward)
+    logs['epd/inverse'].append(epd_backward)
     
     # 3. Compute boltzmann generator log PE
     if args.gaussian_target:

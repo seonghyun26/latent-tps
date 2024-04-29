@@ -74,11 +74,11 @@ def parse_train_args(args=sys.argv[1:]):
     parser.add_argument('--wandb', action='store_true', default=False, help='')
     parser.add_argument('--project', type=str, default='transitionpath', help='')
     parser.add_argument('--run_name', type=str, default='default', help='Name that will be used to save the model in log_dir and that will be used for WandB')
-    parser.add_argument('--saved_dir', type=str, default=None, help='Where the saved weights are loaded from when running inference')
-    parser.add_argument('--log_dir', type=str, default='results', help='Folder in which to save model and logs')
+    parser.add_argument('--saved_dir', type=str, default='results/test', help='Where the saved weights are loaded from when running inference')
+    parser.add_argument('--log_dir', type=str, default='results/test', help='Folder in which to save model and logs')
     parser.add_argument('--ckpt', type=str, default=None)
-    parser.add_argument('--print_freq', type=int, default=10)
-    parser.add_argument('--plot_freq', type=int, default=2)
+    parser.add_argument('--print_freq', type=int, default=100)
+    parser.add_argument('--plot_freq', type=int, default=100)
     parser.add_argument('--ckpt_freq', type=int, default=100)
     parser.add_argument('--save_traj_freq', type=int, default=1, help='Never saves trajectory if this is 0. Frequency at which to save a genertive trajectory.')
     parser.add_argument('--debug', action='store_true', default=False)
@@ -147,6 +147,7 @@ def parse_train_args(args=sys.argv[1:]):
     
     model_dir = os.path.join(args.log_dir, args.run_name)
     os.makedirs(model_dir, exist_ok=True)
+    os.makedirs(os.path.join(model_dir, "img"), exist_ok=True)
     os.environ['MODEL_DIR'] = model_dir
     if args.debug:
         os.environ['LOGGER_LEVEL'] = 'debug'

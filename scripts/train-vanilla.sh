@@ -1,0 +1,21 @@
+CUDA_VISIBLE_DEVICES=$1 \
+python train.py \
+  --system AlanineDipeptideImplicit \
+  --run_name vanilla \
+  --data_save_frequency 120 \
+  --num_frames 1000000 \
+  --print_freq 250 \
+  --ckpt_freq 250 \
+  --val_freq 250 \
+  --flow_type internal_coords \
+  --batch_size 1024 \
+  --lr 5.e-4 \
+  --weight_decay 1.e-5 \
+  --lr_schedule cosine \
+  --warmup_dur 1000 \
+  --grad_clip 1000 \
+  --kl_loss_weight 1 \
+  --rkl_loss_weight 0 \
+  --hidden_dim 256 \
+  --update_layers 12 \
+  --wandb

@@ -134,12 +134,12 @@ def save_ramachandran_plot(phis, psis, iteration, args, name=''):
     if 'START_TIME' in os.environ: title = f'{title} wall={int(time.time() - float(os.environ["START_TIME"]))}sec'
 
     fig = ramachandran_plot(phis, psis, interactive=False, title=title)
-    fig.write_image(os.path.join(os.environ['MODEL_DIR'], f'ramachandran_{iteration}{name}.png'))
+    fig.write_image(os.path.join(os.environ['MODEL_DIR'], "img", f'ramachandran_{iteration}{name}.png'))
 
     if args.wandb:
         metric_name = f'ramachandran_{name}'
         wandb.log({metric_name: wandb.Image(
-            os.path.join(os.environ['MODEL_DIR'], f'ramachandran_{iteration}{name}.png'), caption=f"{metric_name}")})
+            os.path.join(os.environ['MODEL_DIR'], "img", f'ramachandran_{iteration}{name}.png'), caption=f"{metric_name}")})
 
 
 def kl_divergence(samples_p, samples_q, nbins=50):  # it is assumed the support of ref is wider but we want KL(other || ref)
@@ -175,8 +175,8 @@ def save_histogram(logs, iteration, args, key, as_free_energy=False):
     plt.xticks(fontsize=10); plt.yticks(fontsize=10)
     plt.xlabel(key, fontsize=12)
     plt.ylabel('free energy (kT)' if as_free_energy else 'frequency', fontsize=12)
-    plt.savefig(os.path.join(os.environ['MODEL_DIR'], f'{key}_hist_{iteration}.png'), dpi=150)
+    plt.savefig(os.path.join(os.environ['MODEL_DIR'], "img", f'{key}_hist_{iteration}.png'), dpi=150)
     plt.close()
     if args.wandb:
         metric_name = f'{key}_hist'
-        wandb.log({metric_name: wandb.Image(os.path.join(os.environ['MODEL_DIR'], f'{key}_hist_{iteration}.png'),caption=f"{metric_name}")})
+        wandb.log({metric_name: wandb.Image(os.path.join(os.environ['MODEL_DIR'], "img", f'{key}_hist_{iteration}.png'),caption=f"{metric_name}")})
