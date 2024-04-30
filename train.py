@@ -137,7 +137,7 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
 
             if i % args.ckpt_freq == 0:
                 state = {'model': flow.state_dict()}
-                path = f'{args.log_dir}/model_{i}.ckpt'
+                path = f'{os.environ["MODEL_DIR"]}/ckpt/model_{i}.ckpt'
                 torch.save(state, path)
                 logger.info(f'Saved checkpoint {path}')
 
@@ -154,7 +154,7 @@ def train_flow(args, dataset, flow, loader, optimizer, scheduler):
                 logger.info(
                     f'Run name: {args.run_name}')  # please keep this. I have many tmux windows and do not know what is running where sometimes :3
                 if args.wandb:
-                    wandb.log(log)
+                    wandb.log(log | {'step': i})
                 logs = defaultdict(list)
 
             last_successful_state = copy.deepcopy(flow.state_dict())

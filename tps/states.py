@@ -46,8 +46,11 @@ class State:
         delta = torch.abs(self.center.to(points.device) - points)
         delta = torch.where(delta > period / 2, delta - period, delta)
 
-        return torch.hypot(delta[:, 0], delta[:, 1]) < self.radius()
-
+        # Original: Check whether given points are near the center of the state, by raidus
+        # return torch.hypot(delta[:, 0], delta[:, 1]) < self.radius()
+        # NOTE: Check whetehre igven points are insid ethe square of the state
+        return (delta[:, 0] < self.radius()) & (delta[:, 1] < self.radius())
+    
     def __repr__(self):
         return f"'{self.name}': center: {self.center} + {self.radius()}"
 

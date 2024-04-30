@@ -85,7 +85,7 @@ def load_flow_and_args(model_dir, ckpt, **override_args):
     dataset = SingleMolDataset(args)
 
     flow = construct_model(args, dataset)
-    state_dict = torch.load(os.path.join(model_dir, ckpt), map_location=torch.device(args.__dict__["torch_device"]))
+    state_dict = torch.load(os.path.join(model_dir, "ckpt", ckpt), map_location=torch.device(args.__dict__["torch_device"]))
     flow.load_state_dict(state_dict['model'], strict=True)
     flow.to(args.torch_device)
     flow.eval()

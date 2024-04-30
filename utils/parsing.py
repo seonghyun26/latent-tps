@@ -148,6 +148,7 @@ def parse_train_args(args=sys.argv[1:]):
     model_dir = os.path.join(args.log_dir, args.run_name)
     os.makedirs(model_dir, exist_ok=True)
     os.makedirs(os.path.join(model_dir, "img"), exist_ok=True)
+    os.makedirs(os.path.join(model_dir, "ckpt"), exist_ok=True)
     os.environ['MODEL_DIR'] = model_dir
     if args.debug:
         os.environ['LOGGER_LEVEL'] = 'debug'
