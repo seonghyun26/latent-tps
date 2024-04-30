@@ -1,5 +1,5 @@
-MODEL_DIR=0430-123429
-CKPT_NAME=model_3900
+MODEL_DIR=0429-212606
+CKPT_NAME=model_3600
 
 CUDA_VISIBLE_DEVICES=$1 python inference.py \
   --wandb \
@@ -14,7 +14,7 @@ CUDA_VISIBLE_DEVICES=$1 python inference.py \
   --num_steps 40 \
   --langevin_timestep 40 \
   --num_paths 100 \
-  --seed 0 \
-  --run_name $MODEL_DIR-inference \
+  --seed 1 \
+  --run_name $MODEL_DIR-infer \
   --md_device OpenCL \
   --torch_device cuda

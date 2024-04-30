@@ -16,6 +16,9 @@ from .proposal import ProposalKernel
 from utils.logging import get_logger
 from ..path import PathProcessor, LatentEquidistantPathProcessor
 
+from utils.metrics import *
+
+
 logger = get_logger(__name__)
 
 
@@ -153,7 +156,7 @@ class MetropolisHastingsSampler:
     def __init__(self, path_setup: PathSetup, path_provider: PathProvider, proposal_kernel: ProposalKernel,
                  density_estimator: PathDensityEstimator, path_validator: PathValidator,
                  path_processor: PathProcessor = None, accept_all=False, wandb=False,
-                 ignore_proposal_ratio=False):
+                 ignore_proposal_ratio=False, dataset=None):
         """
         :param path_setup: An object defining the start and stop state
         :param path_provider: An object that specifies the next path once one has been accepted.
@@ -176,6 +179,7 @@ class MetropolisHastingsSampler:
         self.accept_all = accept_all
         self.wandb = wandb
         self.ignore_proposal_ratio = ignore_proposal_ratio
+        self.dataset = dataset
 
     def _step(self, path_generator, log_p_current) -> [None, torch.Tensor]:
         proposal, log_proposal_ratio = next(path_generator)
@@ -209,6 +213,7 @@ class MetropolisHastingsSampler:
 
     def run_until(self, n_samples, max_errors=10_000):
         paths = []
+        rejected_paths = []
         overall_steps, invalid_proposals, rejected_proposals = 0, 0, 0
 
         # Store the log probability of the current path
@@ -264,6 +269,8 @@ class MetropolisHastingsSampler:
                                 invalid_proposals, rejected_proposals = 0, 0
                             elif result.valid:
                                 rejected_proposals += 1
+                                path, log_p_current = result.path, result.log_p_path
+                                rejected_paths.append(path)
                             else:
                                 invalid_proposals += 1
                         except StopIteration:
@@ -282,5 +289,9 @@ class MetropolisHastingsSampler:
             logger.info(f"Interrupted after {overall_steps} steps")
 
         logger.info(f"Accepted {len(paths)} paths in {overall_steps} steps")
+        
+        # TODO: EPD of accepted paths on state c7ax
+        path = paths[-1]
+        end_state = self.path_setup.stop.is_in_state(path, self.dataset)
 
         return paths

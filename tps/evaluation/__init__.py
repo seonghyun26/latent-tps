@@ -50,7 +50,9 @@ def ground_truth_from_path_setup(path_setup: PathSetup, dataset: SingleMolDatase
 
 def evaluate_transition_paths(run_name, dataset: SingleMolDataset, ground_truth: list[np.array],
                               other: list[np.array], results_dir='./results', args={}):
-    out_dir = os.path.join(results_dir, run_name)
+    if len(run_name) > 11:
+        run_name = run_name[:11]
+    out_dir = os.path.join(results_dir, run_name, 'infer', str(args.seed))
     if os.path.exists(out_dir):
         logger.warning(f"Results directory {out_dir} already exists, overwriting")
     else:
@@ -73,31 +75,32 @@ def evaluate_transition_paths(run_name, dataset: SingleMolDataset, ground_truth:
     if len(aligned) > 40:
         save_pdb_transition('./data/aldp.pdb', os.path.join(out_dir, f'aldp_{run_name}_path_-1_equidistant.pdb'), downsample_path(aligned, 40).view(-1, 22, 3))
 
-    ground_truth = [np.array(dataset.phis_psis(path)).T for path in ground_truth]
-    other = [np.array(dataset.phis_psis(path)).T for path in other]
+    if len(ground_truth)> 0:
+        ground_truth = [np.array(dataset.phis_psis(path)).T for path in ground_truth]
+        other = [np.array(dataset.phis_psis(path)).T for path in other]
 
-    _save_path_histogram(run_name, ground_truth, other)
-    plt.savefig(os.path.join(out_dir, 'path_histogram.png'))
-    plt.clf()
+        _save_path_histogram(run_name, ground_truth, other)
+        plt.savefig(os.path.join(out_dir, 'path_histogram.png'))
+        plt.clf()
 
-    _save_path_histogram_non_smoothed(run_name, ground_truth, other)
-    plt.savefig(os.path.join(out_dir, 'path_histogram_non_smoothed.png'))
-    plt.clf()
+        _save_path_histogram_non_smoothed(run_name, ground_truth, other)
+        plt.savefig(os.path.join(out_dir, 'path_histogram_non_smoothed.png'))
+        plt.clf()
 
-    ground_truth = np.concatenate(ground_truth)
-    other = np.concatenate(other)
+        ground_truth = np.concatenate(ground_truth)
+        other = np.concatenate(other)
 
-    _save_marginal_densities(run_name, ground_truth, other)
-    plt.savefig(os.path.join(out_dir, 'marginal_densities.png'))
-    plt.clf()
+        _save_marginal_densities(run_name, ground_truth, other)
+        plt.savefig(os.path.join(out_dir, 'marginal_densities.png'))
+        plt.clf()
 
-    # TODO: probably use path histograms or more samples for KL divergence with interpolated paths
-    kl_info = _calculate_kl(ground_truth, other, out_dir)
+        # TODO: probably use path histograms or more samples for KL divergence with interpolated paths
+        kl_info = _calculate_kl(ground_truth, other, out_dir)
 
-    if args.wandb:
-        wandb.log({"path_histogram": wandb.Image(os.path.join(out_dir, 'path_histogram.png'))})
-        wandb.log({"path_histogram_non_smoothed": wandb.Image(os.path.join(out_dir, 'path_histogram_non_smoothed.png'))})
-        wandb.log(kl_info)
+        if args.wandb:
+            wandb.log({"path_histogram": wandb.Image(os.path.join(out_dir, 'path_histogram.png'))})
+            wandb.log({"path_histogram_non_smoothed": wandb.Image(os.path.join(out_dir, 'path_histogram_non_smoothed.png'))})
+            wandb.log(kl_info)
 
     return out_dir
 

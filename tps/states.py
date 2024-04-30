@@ -44,7 +44,8 @@ class State:
             phis, psis = dataset.phis_psis(points)
             points = torch.stack([torch.tensor(phis), torch.tensor(psis)], dim=1).to(points.device)
         delta = torch.abs(self.center.to(points.device) - points)
-        delta = torch.where(delta > period / 2, delta - period, delta)
+        # delta = torch.where(delta > period / 2, delta - period, delta)
+        delta = torch.abs(torch.where(delta > period / 2, delta - period, delta))
 
         # Original: Check whether given points are near the center of the state, by raidus
         # return torch.hypot(delta[:, 0], delta[:, 1]) < self.radius()

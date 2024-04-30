@@ -230,7 +230,7 @@ if __name__ == '__main__':
 
         mcmc = MetropolisHastingsSampler(path_setup, path_provider, proposal_kernel, density_estimator,
                                          path_validator, path_processor=path_processor, accept_all=args.accept_all,
-                                         wandb=args.wandb, ignore_proposal_ratio=args.ignore_proposal_ratio)
+                                         wandb=args.wandb, ignore_proposal_ratio=args.ignore_proposal_ratio, dataset=dataset)
     else:
         raise NotImplementedError(f'sampling method ({args.sampling_method}) not implemented')
 
